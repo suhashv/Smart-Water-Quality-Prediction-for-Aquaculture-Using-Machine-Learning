@@ -1,10 +1,9 @@
-# Smart-Water-Quality-Prediction-for-Aquaculture-Using-Machine-Learning
-Capstone project that predicts water quality for aquaculture using machine learning (LSTM, GRU, CNN). Processes sensor data (pH, turbidity, potability) and provides actionable insights through a web app.
 # 🌊 Smart Water Quality Prediction for Aquaculture Using Machine Learning
 
 This **capstone project** focuses on predicting water quality in aquaculture using advanced machine learning techniques. By analyzing water parameters such as **pH**, **turbidity**, and **potability**, this system helps monitor and ensure safe water conditions for aquatic life.  
 
-⚡ The solution leverages **LSTM**, **GRU**, and **CNN models**, and is designed for real-time insights via a simple web app interface (Streamlit / Flask).
+⚡ The solution leverages **LSTM**, **GRU**, and **CNN models**, and is designed for real-time insights via a simple web app interface (Streamlit / Flask).  
+⚡ The project also integrates **Firebase** for **real-time monitoring** and data updates, with a live website at 👉 [https://waterquality-1dcdc.web.app/](https://waterquality-1dcdc.web.app/)
 
 ---
 
@@ -13,6 +12,7 @@ This **capstone project** focuses on predicting water quality in aquaculture usi
 ✅ Predict water potability and quality from sensor data  
 ✅ Enable aquaculture managers to take action before water quality deteriorates  
 ✅ Build a modular, scalable, and deployable ML pipeline  
+✅ Provide real-time water quality monitoring via Firebase  
 
 ---
 
@@ -22,8 +22,10 @@ This **capstone project** focuses on predicting water quality in aquaculture usi
 - **TensorFlow / Keras**
 - **scikit-learn**
 - **Pandas**, **NumPy**
-- **Streamlit** / **Flask** (for the web interface)
-- **Matplotlib**, **Seaborn** (for visualizations)
+- **Streamlit** / **Flask**
+- **Firebase (Realtime Database, Hosting)**
+- **Matplotlib**, **Seaborn**
+- **HTML / CSS / JS** (for chatbot and frontend)
 
 ---
 
@@ -43,6 +45,8 @@ smart-water-quality-prediction/
 │   ├── augmented_water_data.xlsx
 │   ├── water_data.xlsx
 │   └── water_potability.xlsx
+├── web/                   # Frontend files
+│   └── fish_water_quality_chatbot.html
 ├── templates/              # HTML templates (if applicable)
 ├── requirements.txt        # Python dependencies
 └── README.md               # Project documentation
@@ -89,16 +93,12 @@ streamlit run app.py
 
 🌟 Predict water potability using ML models  
 🌟 Visualize input data trends  
+🌟 Real-time water quality monitoring using Firebase  
+🌟 Clean and minimal web app interface (link: [https://waterquality-1dcdc.web.app/](https://waterquality-1dcdc.web.app/))  
 🌟 Modular code (easy to extend for new sensors / models)  
 🌟 Ready for deployment on cloud or local servers  
 
 ---
-
-## 💡 Example Use Cases
-
-- Automated monitoring in aquaculture ponds  
-- Early detection of unsuitable water conditions  
-- Integration into IoT-based smart aquaculture systems
 
 ## 💬 Fish Water Quality Chatbot
 
@@ -119,6 +119,12 @@ To try it:
 
 ---
 
+## 💡 Example Use Cases
+
+- Automated monitoring in aquaculture ponds  
+- Early detection of unsuitable water conditions  
+- Integration into IoT-based smart aquaculture systems  
+
 ---
 
 ## 📄 License
@@ -127,9 +133,7 @@ This project is licensed under the **MIT License** — free to use and modify wi
 
 ---
 
-## 🙌 Acknowledgments
 
-🙏 Thanks to my mentors, peers, and the open-source community that enabled the creation of this project. Special thanks to TensorFlow, Keras, Pandas, and Streamlit contributors.
+## 🔗 Live Demo
 
----
-
+🌐 Real-time monitoring web app: [https://waterquality-1dcdc.web.app/](https://waterquality-1dcdc.web.app/)
