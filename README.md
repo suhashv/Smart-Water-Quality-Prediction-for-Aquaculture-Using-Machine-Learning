@@ -100,7 +100,7 @@ streamlit run app.py
 - Early detection of unsuitable water conditions  
 - Integration into IoT-based smart aquaculture systems
 
-  ## 💬 Fish Water Quality Chatbot
+## 💬 Fish Water Quality Chatbot
 
 This project also includes a **Fish Water Quality Chatbot** built using **HTML, CSS, and JavaScript**. The chatbot connects to **Gemini API** to provide optimal water conditions for different fish species, including:
 
