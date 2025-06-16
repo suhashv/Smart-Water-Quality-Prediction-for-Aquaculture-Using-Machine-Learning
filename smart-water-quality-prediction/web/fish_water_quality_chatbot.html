@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fish Water Quality Guide</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #00796B, #8BC34A);
+            color: #fff;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            width: 450px;
+            max-height: 80vh; /* Limit container height */
+            overflow-y: auto; /* Enable vertical scrolling if content exceeds height */
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .input-box {
+            width: 90%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            margin: 15px 0;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            font-size: 16px;
+        }
+
+        .input-box::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .btn {
+            padding: 14px 30px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #FF9800, #FF5722);
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+        }
+
+        .result {
+            margin-top: 30px;
+            font-size: 18px;
+            line-height: 1.6;
+            text-align: left;
+            white-space: pre-line; /* Preserve line breaks from Gemini API response */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Fish Water Quality Guide</h1>
+        <input type="text" id="fishInput" class="input-box" placeholder="Enter fish type...">
+        <button class="btn" onclick="fetchFishData()">Get Water Conditions</button>
+        <div class="result" id="fishResult"></div>
+    </div>
+
+    <script>
+        async function fetchFishData() {
+            const fishType = document.getElementById("fishInput").value.trim().toLowerCase();
+            if (!fishType) {
+                document.getElementById("fishResult").innerHTML = "Please enter a fish type.";
+                return;
+            }
+
+            try {
+                const apiKey = 'AIzaSyBU5TvvCfpnGfzhhOg1pDd3pvPoLtOndrQ';
+                const modelName = 'gemini-1.5-flash';
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+
+                const prompt = `Provide the optimal water conditions (pH, turbidity in NTU, and total dissolved solids in mg/L) for ${fishType}. Structure the response in a clear vertical format, one parameter per line.`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                    }),
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    document.getElementById("fishResult").innerHTML = "Error fetching data from Gemini API: " + data.error.message;
+                    return;
+                }
+
+                const generatedText = data.candidates[0].content.parts[0].text;
+                document.getElementById("fishResult").innerHTML = generatedText;
+
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                document.getElementById("fishResult").innerHTML = "Error fetching data.";
+            }
+        }
+    </script>
+</body>
+</html>
