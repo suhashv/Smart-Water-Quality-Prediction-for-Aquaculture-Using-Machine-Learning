@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Water Quality Prediction</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://www.fao.org/fileadmin/templates/SOFIA/2022/images/story-images/fishery-resources-min.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            position: relative;
+            flex-direction: column;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            color: white;
+            text-shadow: 1px 1px 2px black;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            width: 400px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border: none;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #4CAF50, #2E8B57);
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            background: linear-gradient(45deg, #2E8B57, #4CAF50);
+            transform: scale(1.05);
+        }
+
+        .result {
+            margin-top: 20px;
+            font-size: 20px;
+        }
+
+        .timestamp {
+            font-size: 16px;
+            color: lightgray;
+            margin-top: 10px;
+        }
+
+        .graph-container {
+            width: 80%;
+            max-width: 600px;
+            background: black;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="overlay"></div>
+
+    <div class="container">
+        <h1>Water Quality Prediction</h1>
+        <button id="predictButton" class="btn" onclick="togglePrediction()">Start Predicting</button>
+        <div class="result" id="predictionResult"></div>
+        <div class="timestamp" id="lastUpdated"></div>
+    </div>
+
+    <div class="graph-container">
+        <canvas id="waterQualityChart"></canvas>
+    </div>
+
+    <script>
+        let lastUpdatedTime = null;
+        let predictionInterval = null;
+        let isPredicting = false;
+        let chart;
+        let timeLabels = [];
+        let pHData = [], turbidityData = [], solidsData = [];
+        const THINGSPEAK_API_URL = "https://api.thingspeak.com/channels/2856767/feeds.json?api_key=WY1D1435R5CVKWDN&results=5";
+
+        function startPrediction() {
+            fetch(THINGSPEAK_API_URL)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.feeds || data.feeds.length === 0) {
+                        document.getElementById("predictionResult").innerHTML = "Error: No data available.";
+                        return;
+                    }
+
+                    const latestEntry = data.feeds[0];
+
+                    const pH = latestEntry.field1 ? parseFloat(latestEntry.field1).toFixed(2) : "N/A";
+                    const turbidity = latestEntry.field2 ? parseFloat(latestEntry.field2).toFixed(2) : "N/A";
+                    const solids = latestEntry.field3 ? parseFloat(latestEntry.field3).toFixed(2) : "N/A";
+                    const quality = latestEntry.field4 ? latestEntry.field4 : "N/A";
+                    
+                    lastUpdatedTime = new Date(latestEntry.created_at);
+
+                    document.getElementById("predictionResult").innerHTML = 
+                        `<b>pH:</b> ${pH} <br> 
+                        <b>Turbidity:</b> ${turbidity} NTU <br> 
+                        <b>Solids:</b> ${solids} mg/L <br> 
+                        <b>Water Quality:</b> ${quality}`;
+
+                    document.getElementById("lastUpdated").innerHTML = 
+                        `Updated at ${lastUpdatedTime.toLocaleString()}`;
+
+                    updateGraph(data.feeds);
+                })
+                .catch(error => {
+                    console.error("Error fetching data:", error);
+                    document.getElementById("predictionResult").innerHTML = "Error fetching data.";
+                });
+        }
+
+        function updateGraph(feeds) {
+            timeLabels = feeds.map(entry => new Date(entry.created_at).toLocaleTimeString());
+            pHData = feeds.map(entry => entry.field1 ? parseFloat(entry.field1) : null);
+            turbidityData = feeds.map(entry => entry.field2 ? parseFloat(entry.field2) : null);
+            solidsData = feeds.map(entry => entry.field3 ? parseFloat(entry.field3) : null);
+
+            if (!chart) {
+                createGraph();
+            } else {
+                chart.data.labels = timeLabels;
+                chart.data.datasets[0].data = pHData;
+                chart.data.datasets[1].data = turbidityData;
+                chart.data.datasets[2].data = solidsData;
+                chart.update();
+            }
+        }
+
+        function createGraph() {
+            const ctx = document.getElementById('waterQualityChart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timeLabels,
+                    datasets: [
+                        { label: 'pH', data: pHData, borderColor: '#00FF00', fill: false },
+                        { label: 'Turbidity (NTU)', data: turbidityData, borderColor: '#0000FF', fill: false },
+                        { label: 'Solids (mg/L)', data: solidsData, borderColor: '#FF0000', fill: false }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: { ticks: { color: 'white' } },
+                        y: { ticks: { color: 'white' } }
+                    },
+                    plugins: {
+                        legend: { labels: { color: 'white' } }
+                    }
+                }
+            });
+        }
+
+        function togglePrediction() {
+            const button = document.getElementById("predictButton");
+
+            if (isPredicting) {
+                clearInterval(predictionInterval);
+                predictionInterval = null;
+                button.textContent = "Start Predicting";
+            } else {
+                startPrediction();
+                predictionInterval = setInterval(startPrediction, 10000);
+                button.textContent = "Stop Predicting";
+            }
+
+            isPredicting = !isPredicting;
+        }
+    </script>
+
+</body>
+</html>
